@@ -1,4 +1,4 @@
-# cryptonomicon
+# Cryptonomicon
 
 ## Project setup
 ```
