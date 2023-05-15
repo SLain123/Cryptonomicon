@@ -1,14 +1,25 @@
 <template>
-  <First msg="Title" />
+  <TickerInput v-model="tickerValue" @add-ticker="addTicker" />
 </template>
 
 <script>
-import  First  from './components/First.vue'
+import TickerInput from './components/TickerInput.vue'
 
 export default {
   name: 'App',
   components: {
-    First
+    TickerInput
+  },
+  data() {
+    return {
+      tickerValue: "",
+      tickerList: [],
+    }
+  },
+  methods: {
+    addTicker: function (newTicker) {
+      this.tickerList.push(newTicker)
+    }
   }
 }
 </script>
@@ -20,6 +31,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  max-width: 1440px;
+  margin: 40px auto 0 auto;
 }
 </style>
