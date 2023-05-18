@@ -19,8 +19,10 @@ export default {
     },
 
     addTicker() {
-      this.$emit('add-ticker', this.modelValue)
-      this.$emit('update:modelValue', "")
+      if (this.modelValue) {
+        this.$emit('add-ticker', this.modelValue)
+        this.$emit('update:modelValue', "")
+      }
     }
   }
 }
