@@ -6,9 +6,11 @@
   </ul>
 </template>
 
-<script>
+<script lang="ts">
 import TickerInput from './components/TickerInput.vue'
 import TickerItem from "./components/TickerItem.vue"
+
+import { getTickerInfo } from './services/getTickerInfo'
 
 export default {
   name: 'App',
@@ -23,15 +25,22 @@ export default {
     }
   },
   methods: {
-    addTicker: function (newTicker) {
+    addTicker(newTicker) {
       this.tickerList.push({ id: +(new Date()), name: newTicker, cost: 0 })
     },
 
-    removeTicker: function (tickerId) {
+    removeTicker(tickerId) {
       const newList = this.tickerList.filter(({ id }) => id !== tickerId)
       this.tickerList = newList;
-    }
-  }
+    },
+
+    async fetchTicker() {
+      getTickerInfo("test").then(res => console.log(res))
+    },
+  },
+  mounted() {
+    this.fetchTicker()
+  },
 }
 </script>
 
