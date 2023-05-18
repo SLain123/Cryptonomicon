@@ -33,6 +33,7 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     width: 300px;
+    margin-bottom: 32px;
   }
 
   &_label {
