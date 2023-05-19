@@ -8,20 +8,20 @@
     </li>
 </template>
 
-<script>
+<script lang="ts">
 export default {
-    name: "TickerItem",
+    name: 'TickerItem',
     props: {
         id: Number,
         name: String,
-        cost: Number
+        cost: Number,
     },
     methods: {
         removeItem() {
-            this.$emit('remove-ticker', this.id)
-        }
-    }
-}
+            this.$emit('remove-ticker', this.id);
+        },
+    },
+};
 </script>
 
 <style scoped lang="scss">
