@@ -1,8 +1,8 @@
 <template>
-    <TickerInput v-model="tickerValue" @add-ticker="addTicker" />
-    <ul class="ticker_list" v-if="tickerList.length">
+    <TickerInput v-model="tickerInputValue" @add-ticker="addTicker" />
+    <ul class="ticker_list" v-if="activeTickers.length">
         <TickerItem
-            v-for="{ id, name, cost } in tickerList"
+            v-for="{ id, name, cost } in activeTickers"
             :key="id"
             :id="id"
             :name="name"
@@ -16,7 +16,7 @@
 import TickerInput from './components/TickerInput.vue';
 import TickerItem from './components/TickerItem.vue';
 
-import { getTickerInfo } from './services/getTickerInfo';
+import { getAllTickers } from './services/getTickerData';
 
 export default {
     name: 'App',
@@ -26,8 +26,9 @@ export default {
     },
     data() {
         return {
-            tickerValue: '',
-            tickerList: [
+            tickerInputValue: '',
+            tickerList: {},
+            activeTickers: [
                 { id: 0, name: 'first', cost: 10 },
                 { id: 1, name: 'second', cost: 100 },
                 { id: 2, name: 'third', cost: 20 },
@@ -37,20 +38,26 @@ export default {
     },
     methods: {
         addTicker(newTicker: string) {
-            this.tickerList.push({ id: +new Date(), name: newTicker, cost: 0 });
+            this.activeTickers.push({
+                id: +new Date(),
+                name: newTicker,
+                cost: 0,
+            });
         },
 
         removeTicker(tickerId: number) {
-            const newList = this.tickerList.filter(({ id }) => id !== tickerId);
-            this.tickerList = newList;
+            const newList = this.activeTickers.filter(
+                ({ id }) => id !== tickerId,
+            );
+            this.activeTickers = newList;
         },
 
-        async fetchTicker() {
-            getTickerInfo('test').then((res) => console.log(res));
+        async saveAllTickers() {
+            getAllTickers().then((list) => (this.tickerList = list));
         },
     },
     mounted() {
-        this.fetchTicker();
+        this.saveAllTickers();
     },
 };
 </script>
