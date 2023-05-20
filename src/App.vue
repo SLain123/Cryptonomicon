@@ -1,5 +1,5 @@
 <template>
-    <TickerInput v-model="tickerInputValue" @add-ticker="addTicker" />
+    <TickerInput v-model="tickerInputValue" :tickerList="tickerList" @add-ticker="addTicker" />
     <ul class="ticker_list" v-if="activeTickers.length">
         <TickerItem
             v-for="{ id, name, cost } in activeTickers"
@@ -13,12 +13,14 @@
 </template>
 
 <script lang="ts">
-import TickerInput from './components/TickerInput.vue';
-import TickerItem from './components/TickerItem.vue';
+import { defineComponent } from 'vue';
 
-import { getAllTickers } from './services/getTickerData';
+import TickerInput from '@/components/TickerInput.vue';
+import TickerItem from '@/components/TickerItem.vue';
 
-export default {
+import { getAllTickers } from '@/services/getTickerData';
+
+export default defineComponent({
     name: 'App',
     components: {
         TickerInput,
@@ -27,7 +29,7 @@ export default {
     data() {
         return {
             tickerInputValue: '',
-            tickerList: {},
+            tickerList: null,
             activeTickers: [
                 { id: 0, name: 'first', cost: 10 },
                 { id: 1, name: 'second', cost: 100 },
@@ -59,7 +61,7 @@ export default {
     mounted() {
         this.saveAllTickers();
     },
-};
+});
 </script>
 
 <style lang="scss">

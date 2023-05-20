@@ -9,7 +9,9 @@
 </template>
 
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
     name: 'TickerItem',
     props: {
         id: Number,
@@ -21,7 +23,7 @@ export default {
             this.$emit('remove-ticker', this.id);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
