@@ -1,12 +1,16 @@
 <template>
-    <TickerInput v-model="tickerInputValue" :tickerList="tickerList" @add-ticker="addTicker" />
+    <TickerInput
+        v-model="tickerInputValue"
+        :tickerList="tickerList"
+        @add-ticker="addTicker"
+    />
     <ul class="ticker_list" v-if="activeTickers.length">
         <TickerItem
-            v-for="{ id, name, cost } in activeTickers"
+            v-for="{ id, name, usd } in activeTickers"
             :key="id"
             :id="id"
             :name="name"
-            :cost="cost"
+            :usd="usd"
             @remove-ticker="removeTicker"
         />
     </ul>
@@ -18,7 +22,8 @@ import { defineComponent } from 'vue';
 import TickerInput from '@/components/TickerInput.vue';
 import TickerItem from '@/components/TickerItem.vue';
 
-import { getAllTickers } from '@/services/getTickerData';
+import { getAllTickers, getTickerPrice } from '@/services/getTickerData';
+import { TickerListType, ITickerCustome } from '@/types/Ticker';
 
 export default defineComponent({
     name: 'App',
@@ -29,29 +34,47 @@ export default defineComponent({
     data() {
         return {
             tickerInputValue: '',
-            tickerList: null,
-            activeTickers: [
-                { id: 0, name: 'first', cost: 10 },
-                { id: 1, name: 'second', cost: 100 },
-                { id: 2, name: 'third', cost: 20 },
-                { id: 3, name: 'fourth', cost: 240 },
-            ],
+            tickerList: null as TickerListType | null,
+            activeTickers: [] as ITickerCustome[],
         };
     },
     methods: {
         addTicker(newTicker: string) {
-            this.activeTickers.push({
-                id: +new Date(),
-                name: newTicker,
-                cost: 0,
+            const id = +new Date();
+            const interval = setInterval(() => this.updatePrice(id), 5000);
+
+            getTickerPrice(newTicker).then(({ USD }) => {
+                this.activeTickers.push({
+                    id,
+                    name: newTicker,
+                    usd: USD,
+                    interval,
+                });
             });
         },
 
+        updatePrice(tickerId: number) {
+            const currentTickerIndex = this.activeTickers.findIndex(
+                ({ id }) => id === tickerId,
+            );
+            const currentTicker = this.activeTickers[currentTickerIndex];
+
+            currentTicker &&
+                getTickerPrice(currentTicker.name).then(
+                    ({ USD }) => (currentTicker.usd = USD),
+                );
+        },
+
         removeTicker(tickerId: number) {
-            const newList = this.activeTickers.filter(
+            const currentTickerIndex = this.activeTickers.findIndex(
+                ({ id }) => id === tickerId,
+            );
+            const currentTicker = this.activeTickers[currentTickerIndex];
+
+            clearInterval(currentTicker.interval);
+            this.activeTickers = this.activeTickers.filter(
                 ({ id }) => id !== tickerId,
             );
-            this.activeTickers = newList;
         },
 
         async saveAllTickers() {

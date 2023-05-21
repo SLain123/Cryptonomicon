@@ -29,13 +29,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 
-import { ITicker } from '@/types/Ticker';
+import { TickerListType } from '@/types/Ticker';
 
 export default defineComponent({
     name: 'TickerInput',
     props: {
         modelValue: String,
-        tickerList: Object as PropType<{ [key: string]: ITicker } | null>,
+        tickerList: Object as PropType<TickerListType | null>,
     },
     data() {
         return {

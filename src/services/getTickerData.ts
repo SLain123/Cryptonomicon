@@ -1,17 +1,18 @@
-export const getTickerData = async (tickerName: string) => {
-    console.log(tickerName);
+import { TickerListType } from '@/types/Ticker';
+
+export const getTickerPrice = async (tickerName: string) => {
     const response = await fetch(
-        `${process.env.VUE_APP_CRYPTO_URL}data/price?fsym=BTC&tsyms=USD`,
+        `${process.env.VUE_APP_CRYPTO_URL}data/price?fsym=${tickerName}&tsyms=USD`,
         {
             method: 'POST',
         },
     );
     const result = await response.json();
-
+    
     return result;
 };
 
-export const getAllTickers = async () => {
+export const getAllTickers = async (): Promise<TickerListType> => {
     const response = await fetch(
         `${process.env.VUE_APP_CRYPTO_URL}data/blockchain/list`,
         {

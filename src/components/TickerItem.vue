@@ -1,7 +1,7 @@
 <template>
     <li class="ticker_item">
-        <p class="ticker_info ticker_name">{{ name }}</p>
-        <p class="ticker_info ticker_cost">{{ cost }}</p>
+        <p class="ticker_info ticker_name">{{ name }} - USD</p>
+        <p class="ticker_info ticker_cost">{{ usd?.toFixed(4) }}</p>
         <button type="button" class="ticker_remove_btn" @click="removeItem">
             <span class="ticker_remove_text">Remove</span>
         </button>
@@ -16,7 +16,7 @@ export default defineComponent({
     props: {
         id: Number,
         name: String,
-        cost: Number,
+        usd: Number,
     },
     methods: {
         removeItem() {
