@@ -34,7 +34,7 @@ export default defineComponent({
     data() {
         return {
             tickerInputValue: '',
-            tickerList: null as TickerListType | null,
+            tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
         };
     },
