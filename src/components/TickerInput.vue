@@ -20,7 +20,15 @@
                 {{ tickerName }}
             </button>
         </div>
-        <button type="button" class="ticker_button" @click="addTicker">
+        <p class="ticker_error" v-if="isDuplicateTicker">
+            The ticker already added before
+        </p>
+        <button
+            type="button"
+            class="ticker_button"
+            @click="addTicker"
+            :disabled="!modelValue"
+        >
             Add ticker
         </button>
     </div>
@@ -36,6 +44,7 @@ export default defineComponent({
     props: {
         modelValue: String,
         tickerList: Object as PropType<TickerListType | null>,
+        isDuplicateTicker: Boolean,
     },
     data() {
         return {
@@ -46,20 +55,20 @@ export default defineComponent({
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
             this.$emit('update:modelValue', target.value);
+            this.$emit('clear-duplicate');
         },
 
         addTicker() {
             if (this.modelValue) {
                 this.$emit('add-ticker', this.modelValue);
-                this.$emit('update:modelValue', '');
             }
         },
+
         addTickerByAutocomplete(evt: Event) {
             const target = evt.target as HTMLButtonElement;
-
-            this.$emit('add-ticker', target.textContent);
-            this.$emit('update:modelValue', '');
+            this.$emit('add-ticker', target.textContent?.toLocaleUpperCase());
         },
+        
         findMatchesTicker() {
             const tickerList = this?.tickerList ? this.tickerList : null;
             const inputValue = this?.modelValue ? this.modelValue : '';
@@ -117,6 +126,11 @@ export default defineComponent({
         &:hover {
             opacity: 0.9;
         }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     }
 
     &_complete {
@@ -140,6 +154,12 @@ export default defineComponent({
                 opacity: 1;
             }
         }
+    }
+
+    &_error {
+        color: rgb(193, 37, 37);
+        font-size: 16px;
+        margin-top: 0;
     }
 }
 </style>

@@ -2,7 +2,9 @@
     <TickerInput
         v-model="tickerInputValue"
         :tickerList="tickerList"
+        :isDuplicateTicker="isDuplicateTicker"
         @add-ticker="addTicker"
+        @clear-duplicate="clearDuplicateValue"
     />
     <ul class="ticker_list" v-if="activeTickers.length">
         <TickerItem
@@ -34,23 +36,36 @@ export default defineComponent({
     data() {
         return {
             tickerInputValue: '',
+            isDuplicateTicker: false,
             tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
         };
     },
     methods: {
-        addTicker(newTicker: string) {
+        addTicker(ticker: string) {
+            const newTicker = ticker.toLocaleLowerCase();
             const id = +new Date();
             const interval = setInterval(() => this.updatePrice(id), 5000);
+            const isDuplicate = Boolean(
+                this.activeTickers.find(
+                    ({ name }) => name.toLocaleLowerCase() === newTicker,
+                ),
+            );
 
-            getTickerPrice(newTicker).then(({ USD }) => {
-                this.activeTickers.push({
-                    id,
-                    name: newTicker,
-                    usd: USD,
-                    interval,
+            if (isDuplicate) {
+                this.tickerInputValue = newTicker;
+            } else {
+                getTickerPrice(newTicker).then(({ USD }) => {
+                    this.activeTickers.push({
+                        id,
+                        name: newTicker,
+                        usd: USD,
+                        interval,
+                    });
                 });
-            });
+                this.tickerInputValue = '';
+            }
+            this.isDuplicateTicker = isDuplicate;
         },
 
         updatePrice(tickerId: number) {
@@ -75,6 +90,10 @@ export default defineComponent({
             this.activeTickers = this.activeTickers.filter(
                 ({ id }) => id !== tickerId,
             );
+        },
+
+        clearDuplicateValue() {
+            this.isDuplicateTicker = false;
         },
 
         async saveAllTickers() {
