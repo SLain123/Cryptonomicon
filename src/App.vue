@@ -3,8 +3,9 @@
         v-model="tickerInputValue"
         :tickerList="tickerList"
         :isDuplicateTicker="isDuplicateTicker"
+        :isErrorTicker="isErrorTicker"
         @add-ticker="addTicker"
-        @clear-duplicate="clearDuplicateValue"
+        @clear-warnings="clearWarnings"
     />
     <ul class="ticker_list" v-if="activeTickers.length">
         <TickerItem
@@ -37,6 +38,7 @@ export default defineComponent({
         return {
             tickerInputValue: '',
             isDuplicateTicker: false,
+            isErrorTicker: false,
             tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
         };
@@ -56,12 +58,14 @@ export default defineComponent({
                 this.tickerInputValue = newTicker;
             } else {
                 getTickerPrice(newTicker).then(({ USD }) => {
-                    this.activeTickers.push({
-                        id,
-                        name: newTicker,
-                        usd: USD,
-                        interval,
-                    });
+                    USD
+                        ? this.activeTickers.push({
+                              id,
+                              name: newTicker,
+                              usd: USD,
+                              interval,
+                          })
+                        : (this.isErrorTicker = true);
                 });
                 this.tickerInputValue = '';
             }
@@ -92,8 +96,9 @@ export default defineComponent({
             );
         },
 
-        clearDuplicateValue() {
+        clearWarnings() {
             this.isDuplicateTicker = false;
+            this.isErrorTicker = false;
         },
 
         async saveAllTickers() {

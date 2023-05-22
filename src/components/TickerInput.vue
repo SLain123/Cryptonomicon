@@ -21,7 +21,10 @@
             </button>
         </div>
         <p class="ticker_error" v-if="isDuplicateTicker">
-            The ticker already added before
+            The ticker has already been added earlier
+        </p>
+        <p class="ticker_error" v-if="isErrorTicker">
+            The ticker is uncorrect or is missing in the base
         </p>
         <button
             type="button"
@@ -45,6 +48,7 @@ export default defineComponent({
         modelValue: String,
         tickerList: Object as PropType<TickerListType | null>,
         isDuplicateTicker: Boolean,
+        isErrorTicker: Boolean,
     },
     data() {
         return {
@@ -55,7 +59,7 @@ export default defineComponent({
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
             this.$emit('update:modelValue', target.value);
-            this.$emit('clear-duplicate');
+            this.$emit('clear-warnings');
         },
 
         addTicker() {
@@ -68,7 +72,7 @@ export default defineComponent({
             const target = evt.target as HTMLButtonElement;
             this.$emit('add-ticker', target.textContent?.toLocaleUpperCase());
         },
-        
+
         findMatchesTicker() {
             const tickerList = this?.tickerList ? this.tickerList : null;
             const inputValue = this?.modelValue ? this.modelValue : '';
