@@ -1,5 +1,9 @@
 <template>
-    <li class="ticker_item" @click="selectItem">
+    <li
+        :class="selectedTickerId === id ? 'ticker_item_selected' : ''"
+        class="ticker_item"
+        @click="selectItem"
+    >
         <p class="ticker_info ticker_name">{{ name }} - USD</p>
         <p class="ticker_info ticker_cost">{{ usd && +usd?.toFixed(8) }}</p>
         <button type="button" class="ticker_remove_btn" @click="removeItem">
@@ -9,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
     name: 'TickerItem',
@@ -17,6 +21,7 @@ export default defineComponent({
         id: Number,
         name: String,
         usd: Number,
+        selectedTickerId: Number as PropType<number | null>,
     },
     methods: {
         selectItem() {
@@ -36,8 +41,14 @@ export default defineComponent({
         width: 25%;
         min-width: 200px;
         padding: 24px;
+        cursor: pointer;
 
         &:hover {
+            border: 2px purple solid;
+            border-radius: 8px;
+        }
+
+        &_selected {
             border: 2px purple solid;
             border-radius: 8px;
         }

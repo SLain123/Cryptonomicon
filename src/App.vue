@@ -19,6 +19,7 @@
                 :id="id"
                 :name="name"
                 :usd="usd"
+                :selectedTickerId="selectedTickerId"
                 @select-ticker="selectTicker"
                 @remove-ticker="removeTicker"
             />
@@ -28,8 +29,6 @@
             :priceList="selectedPriceList"
         />
     </div>
-
-    {{ selectedPriceList }}
 </template>
 
 <script lang="ts">

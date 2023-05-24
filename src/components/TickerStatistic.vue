@@ -28,13 +28,17 @@ export default defineComponent({
             const minValue = this?.priceList?.length
                 ? Math.min(...this.priceList)
                 : 0;
+                
             this.graphList = this?.priceList?.length
-                ? this.priceList.map((price) => {
-                      return maxValue == minValue
-                          ? 50
-                          : (90 * (price - minValue)) / (maxValue - minValue) +
-                                10;
-                  })
+                ? this.priceList
+                      .map((price) => {
+                          return maxValue == minValue
+                              ? 50
+                              : (90 * (price - minValue)) /
+                                    (maxValue - minValue) +
+                                    10;
+                      })
+                      .slice(-30)
                 : [];
         },
     },
