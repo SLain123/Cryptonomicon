@@ -19,18 +19,26 @@
                 :id="id"
                 :name="name"
                 :usd="usd"
+                @select-ticker="selectTicker"
                 @remove-ticker="removeTicker"
             />
         </ul>
+        <TickerStatistic
+            v-if="selectedTickerId"
+            :priceList="selectedPriceList"
+        />
     </div>
+
+    {{ selectedPriceList }}
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import RiseLoader from 'vue-spinner/src/RiseLoader.vue';
 
 import TickerInput from '@/components/TickerInput.vue';
 import TickerItem from '@/components/TickerItem.vue';
-import RiseLoader from 'vue-spinner/src/RiseLoader.vue';
+import TickerStatistic from '@/components/TickerStatistic.vue';
 
 import { getAllTickers, getTickerPrice } from '@/services/getTickerData';
 import { TickerListType, ITickerCustome } from '@/types/Ticker';
@@ -40,6 +48,7 @@ export default defineComponent({
     components: {
         TickerInput,
         TickerItem,
+        TickerStatistic,
         RiseLoader,
     },
     data() {
@@ -49,6 +58,8 @@ export default defineComponent({
             isErrorTicker: false,
             tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
+            selectedTickerId: null as null | number,
+            selectedPriceList: [] as number[],
         };
     },
     methods: {
@@ -87,9 +98,14 @@ export default defineComponent({
             const currentTicker = this.activeTickers[currentTickerIndex];
 
             currentTicker &&
-                getTickerPrice(currentTicker.name).then(
-                    ({ USD }) => (currentTicker.usd = USD),
-                );
+                getTickerPrice(currentTicker.name).then(({ USD }) => {
+                    currentTicker.usd = USD;
+                    this.selectedTickerId === tickerId &&
+                        (this.selectedPriceList = [
+                            ...this.selectedPriceList,
+                            USD,
+                        ]);
+                });
         },
 
         removeTicker(tickerId: number) {
@@ -102,6 +118,16 @@ export default defineComponent({
             this.activeTickers = this.activeTickers.filter(
                 ({ id }) => id !== tickerId,
             );
+
+            if (this.selectedTickerId === tickerId) {
+                this.selectedTickerId = null;
+                this.selectedPriceList = [];
+            }
+        },
+
+        selectTicker(tickerId: number | null) {
+            this.selectedTickerId = tickerId;
+            this.selectedPriceList = [];
         },
 
         clearWarnings() {

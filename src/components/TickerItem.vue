@@ -1,7 +1,7 @@
 <template>
-    <li class="ticker_item">
+    <li class="ticker_item" @click="selectItem">
         <p class="ticker_info ticker_name">{{ name }} - USD</p>
-        <p class="ticker_info ticker_cost">{{ usd?.toFixed(4) }}</p>
+        <p class="ticker_info ticker_cost">{{ usd && +usd?.toFixed(8) }}</p>
         <button type="button" class="ticker_remove_btn" @click="removeItem">
             <span class="ticker_remove_text">Remove</span>
         </button>
@@ -19,6 +19,10 @@ export default defineComponent({
         usd: Number,
     },
     methods: {
+        selectItem() {
+            this.$emit('select-ticker', this.id);
+        },
+
         removeItem() {
             this.$emit('remove-ticker', this.id);
         },
