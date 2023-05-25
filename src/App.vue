@@ -63,27 +63,33 @@ export default defineComponent({
     },
     methods: {
         addTicker(ticker: string) {
-            const newTicker = ticker.toLocaleLowerCase();
+            const newTickerName = ticker.toLocaleLowerCase();
             const id = +new Date();
             const interval = setInterval(() => this.updatePrice(id), 5000);
             const isDuplicate = Boolean(
                 this.activeTickers.find(
-                    ({ name }) => name.toLocaleLowerCase() === newTicker,
+                    ({ name }) => name.toLocaleLowerCase() === newTickerName,
                 ),
             );
 
             if (isDuplicate) {
-                this.tickerInputValue = newTicker;
+                this.tickerInputValue = newTickerName;
             } else {
-                getTickerPrice(newTicker).then(({ USD }) => {
-                    USD
-                        ? this.activeTickers.push({
-                              id,
-                              name: newTicker,
-                              usd: USD,
-                              interval,
-                          })
-                        : (this.isErrorTicker = true);
+                getTickerPrice(newTickerName).then(({ USD }) => {
+                    if (USD) {
+                        this.activeTickers.push({
+                            id,
+                            name: newTickerName,
+                            usd: USD,
+                            interval,
+                        });
+                        localStorage.setItem(
+                            'tickers',
+                            JSON.stringify(this.activeTickers),
+                        );
+                    } else {
+                        this.isErrorTicker = true;
+                    }
                 });
                 this.tickerInputValue = '';
             }
@@ -117,6 +123,7 @@ export default defineComponent({
             this.activeTickers = this.activeTickers.filter(
                 ({ id }) => id !== tickerId,
             );
+            localStorage.setItem('tickers', JSON.stringify(this.activeTickers));
 
             if (this.selectedTickerId === tickerId) {
                 this.selectedTickerId = null;
@@ -137,6 +144,18 @@ export default defineComponent({
         async saveAllTickers() {
             getAllTickers().then((list) => (this.tickerList = list));
         },
+    },
+    created() {
+        const storageTickers = localStorage.getItem('tickers');
+
+        storageTickers && (this.activeTickers = JSON.parse(storageTickers));
+        this.activeTickers.forEach((ticker) => {
+            const newInterval = setInterval(
+                () => this.updatePrice(ticker.id),
+                5000,
+            );
+            ticker.interval = newInterval;
+        });
     },
     mounted() {
         this.saveAllTickers();
