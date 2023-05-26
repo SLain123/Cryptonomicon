@@ -12,6 +12,14 @@
             @add-ticker="addTicker"
             @clear-warnings="clearWarnings"
         />
+
+        <TickerFilters
+            v-model="filters"
+            :page="page"
+            @change-page="changePage"
+            @change-filters="changeFilters"
+        />
+
         <ul class="ticker_list" v-if="activeTickers.length">
             <TickerItem
                 v-for="{ id, name, usd } in activeTickers"
@@ -24,10 +32,12 @@
                 @remove-ticker="removeTicker"
             />
         </ul>
+
         <TickerStatistic
             v-if="selectedTickerId"
             :priceList="selectedPriceList"
         />
+        {{ filters }}
     </div>
 </template>
 
@@ -38,6 +48,7 @@ import RiseLoader from 'vue-spinner/src/RiseLoader.vue';
 import TickerInput from '@/components/TickerInput.vue';
 import TickerItem from '@/components/TickerItem.vue';
 import TickerStatistic from '@/components/TickerStatistic.vue';
+import TickerFilters from '@/components/TickerFilters.vue';
 
 import { getAllTickers, getTickerPrice } from '@/services/getTickerData';
 import { TickerListType, ITickerCustome } from '@/types/Ticker';
@@ -48,6 +59,7 @@ export default defineComponent({
         TickerInput,
         TickerItem,
         TickerStatistic,
+        TickerFilters,
         RiseLoader,
     },
     data() {
@@ -59,6 +71,8 @@ export default defineComponent({
             activeTickers: [] as ITickerCustome[],
             selectedTickerId: null as null | number,
             selectedPriceList: [] as number[],
+            page: 1,
+            filters: '',
         };
     },
     methods: {
@@ -139,6 +153,14 @@ export default defineComponent({
         clearWarnings() {
             this.isDuplicateTicker = false;
             this.isErrorTicker = false;
+        },
+
+        changePage(newPage: number) {
+            console.log(newPage, '- new page');
+        },
+
+        changeFilters(filter: string) {
+            console.log(filter, '- filter');
         },
 
         async saveAllTickers() {

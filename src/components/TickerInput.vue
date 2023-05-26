@@ -26,24 +26,25 @@
         <p class="ticker_error" v-if="isErrorTicker">
             The ticker is uncorrect or is missing in the base
         </p>
-        <button
-            type="button"
-            class="ticker_button"
+        <ButtonComponent
             @click="addTicker"
+            text="Add ticker"
             :disabled="!modelValue"
-        >
-            Add ticker
-        </button>
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 
+import ButtonComponent from '@/components/ui/ButtonComponent.vue';
 import { TickerListType } from '@/types/Ticker';
 
 export default defineComponent({
     name: 'TickerInput',
+    components: {
+        ButtonComponent,
+    },
     props: {
         modelValue: String,
         tickerList: Object as PropType<TickerListType | null>,
@@ -117,24 +118,6 @@ export default defineComponent({
         margin: 16px 0;
         font-size: 18px;
         padding: 4px 16px;
-    }
-
-    &_button {
-        border: none;
-        border-radius: 16px;
-        background-color: grey;
-        color: white;
-        padding: 6px 16px;
-        cursor: pointer;
-
-        &:hover {
-            opacity: 0.9;
-        }
-
-        &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
     }
 
     &_complete {
