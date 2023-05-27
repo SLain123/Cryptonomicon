@@ -57,6 +57,7 @@ export default defineComponent({
                 this.$emit('change-page', page - 1);
             }
         },
+        
         changeFilters() {
             this.$emit('change-filters', this.modelValue);
         },

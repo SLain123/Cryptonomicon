@@ -52,6 +52,7 @@ import TickerFilters from '@/components/TickerFilters.vue';
 
 import { getAllTickers, getTickerPrice } from '@/services/getTickerData';
 import { TickerListType, ITickerCustome } from '@/types/Ticker';
+import { addValueToQueryUrl, getQueryParams } from '@/utils/urlFuncs';
 
 export default defineComponent({
     name: 'App',
@@ -79,7 +80,7 @@ export default defineComponent({
         addTicker(ticker: string) {
             const newTickerName = ticker.toLocaleLowerCase();
             const id = +new Date();
-            const interval = setInterval(() => this.updatePrice(id), 100000);
+            const interval = setInterval(() => this.updatePrice(id), 10000);
             const isDuplicate = Boolean(
                 this.activeTickers.find(
                     ({ name }) => name.toLocaleLowerCase() === newTickerName,
@@ -157,15 +158,20 @@ export default defineComponent({
 
         changePage(newPage: number) {
             this.page = newPage;
+            addValueToQueryUrl('page', String(newPage));
         },
 
         changeFilters(filters: string) {
             this.filters = filters;
+            addValueToQueryUrl('filters', filters);
+            this.page = 1;
+            addValueToQueryUrl('page', String(1));
         },
 
         filtredTickers() {
-            return this.activeTickers
-                .filter(({ name }) => name.includes(this.filters))
+            return this.activeTickers.filter(({ name }) =>
+                name.includes(this.filters),
+            );
         },
 
         separatedByPage() {
@@ -183,15 +189,19 @@ export default defineComponent({
     },
     created() {
         const storageTickers = localStorage.getItem('tickers');
+        const queryParams = getQueryParams();
 
         storageTickers && (this.activeTickers = JSON.parse(storageTickers));
         this.activeTickers.forEach((ticker) => {
             const newInterval = setInterval(
                 () => this.updatePrice(ticker.id),
-                100000,
+                10000,
             );
             ticker.interval = newInterval;
         });
+
+        queryParams?.page && (this.page = +queryParams.page);
+        queryParams?.filters && (this.filters = queryParams.filters);
     },
     mounted() {
         this.saveAllTickers();
