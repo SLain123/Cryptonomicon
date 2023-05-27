@@ -1,21 +1,25 @@
 <template>
     <div class="control_panel">
-        <input
-            type="input"
-            class="control_filter"
-            :value="modelValue"
-            @input="updateInputValue"
-        />
+        <div>
+            <label for="filter">Filter:</label>
+            <input
+                id="filter"
+                type="input"
+                class="control_filter"
+                :value="modelValue"
+                @input="updateInputValue"
+            />
+        </div>
         <div class="control_btns">
             <ButtonComponent
                 @click="changePage(false)"
                 text="Prev"
-                :disabled="false"
+                :disabled="!(page && page > 1)"
             />
             <ButtonComponent
                 @click="changePage(true)"
                 text="Next"
-                :disabled="false"
+                :disabled="!(page && total && page < total)"
             />
         </div>
     </div>
@@ -34,6 +38,7 @@ export default defineComponent({
     props: {
         modelValue: String,
         page: Number,
+        total: Number,
     },
     methods: {
         updateInputValue(evt: Event) {
@@ -42,11 +47,15 @@ export default defineComponent({
         },
 
         changePage(action: boolean) {
-            this.page &&
-                this.$emit(
-                    'change-page',
-                    action ? this.page + 1 : this.page - 1,
-                );
+            const page = this?.page ? this.page : 1;
+            const total = this?.total ? this.total : 1;
+
+            if (action && page < total) {
+                this.$emit('change-page', page + 1);
+            }
+            if (!action && page > 1) {
+                this.$emit('change-page', page - 1);
+            }
         },
         changeFilters() {
             this.$emit('change-filters', this.modelValue);
@@ -73,6 +82,7 @@ export default defineComponent({
     &_filter {
         padding: 4px 16px;
         font-size: 16px;
+        margin-left: 16px;
     }
 
     &_btns {

@@ -16,13 +16,14 @@
         <TickerFilters
             v-model="filters"
             :page="page"
+            :total="Math.ceil(filtredTickers().length / 8)"
             @change-page="changePage"
             @change-filters="changeFilters"
         />
 
         <ul class="ticker_list" v-if="activeTickers.length">
             <TickerItem
-                v-for="{ id, name, usd } in activeTickers"
+                v-for="{ id, name, usd } in separatedByPage()"
                 :key="id"
                 :id="id"
                 :name="name"
@@ -37,7 +38,6 @@
             v-if="selectedTickerId"
             :priceList="selectedPriceList"
         />
-        {{ filters }}
     </div>
 </template>
 
@@ -79,7 +79,7 @@ export default defineComponent({
         addTicker(ticker: string) {
             const newTickerName = ticker.toLocaleLowerCase();
             const id = +new Date();
-            const interval = setInterval(() => this.updatePrice(id), 5000);
+            const interval = setInterval(() => this.updatePrice(id), 100000);
             const isDuplicate = Boolean(
                 this.activeTickers.find(
                     ({ name }) => name.toLocaleLowerCase() === newTickerName,
@@ -156,11 +156,25 @@ export default defineComponent({
         },
 
         changePage(newPage: number) {
-            console.log(newPage, '- new page');
+            this.page = newPage;
         },
 
-        changeFilters(filter: string) {
-            console.log(filter, '- filter');
+        changeFilters(filters: string) {
+            this.filters = filters;
+        },
+
+        filtredTickers() {
+            return this.activeTickers
+                .filter(({ name }) => name.includes(this.filters))
+        },
+
+        separatedByPage() {
+            const start = (this.page - 1) * 8;
+            const end = this.page * 8;
+
+            return this.activeTickers
+                .filter(({ name }) => name.includes(this.filters))
+                .slice(start, end);
         },
 
         async saveAllTickers() {
@@ -174,7 +188,7 @@ export default defineComponent({
         this.activeTickers.forEach((ticker) => {
             const newInterval = setInterval(
                 () => this.updatePrice(ticker.id),
-                5000,
+                100000,
             );
             ticker.interval = newInterval;
         });
