@@ -16,14 +16,14 @@
         <TickerFilters
             v-model="filters"
             :page="page"
-            :total="Math.ceil(filtredTickers().length / 8)"
-            @change-page="changePage"
+            :total="totalPage"
             @change-filters="changeFilters"
+            @change-page="changePage"
         />
 
         <ul class="ticker_list" v-if="activeTickers.length">
             <TickerItem
-                v-for="{ id, name, usd } in separatedByPage()"
+                v-for="{ id, name, usd } in pageSeparatedTickers"
                 :key="id"
                 :id="id"
                 :name="name"
@@ -63,19 +63,21 @@ export default defineComponent({
         TickerFilters,
         RiseLoader,
     },
+
     data() {
         return {
             tickerInputValue: '',
+            filters: '',
+            page: 1,
             isDuplicateTicker: false,
             isErrorTicker: false,
             tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
             selectedTickerId: null as null | number,
             selectedPriceList: [] as number[],
-            page: 1,
-            filters: '',
         };
     },
+
     methods: {
         addTicker(ticker: string) {
             const newTickerName = ticker.toLocaleLowerCase();
@@ -92,16 +94,15 @@ export default defineComponent({
             } else {
                 getTickerPrice(newTickerName).then(({ USD }) => {
                     if (USD) {
-                        this.activeTickers.push({
-                            id,
-                            name: newTickerName,
-                            usd: USD,
-                            interval,
-                        });
-                        localStorage.setItem(
-                            'tickers',
-                            JSON.stringify(this.activeTickers),
-                        );
+                        this.activeTickers = [
+                            ...this.activeTickers,
+                            {
+                                id,
+                                name: newTickerName,
+                                usd: USD,
+                                interval,
+                            },
+                        ];
                     } else {
                         this.isErrorTicker = true;
                     }
@@ -138,7 +139,6 @@ export default defineComponent({
             this.activeTickers = this.activeTickers.filter(
                 ({ id }) => id !== tickerId,
             );
-            localStorage.setItem('tickers', JSON.stringify(this.activeTickers));
 
             if (this.selectedTickerId === tickerId) {
                 this.selectedTickerId = null;
@@ -156,37 +156,54 @@ export default defineComponent({
             this.isErrorTicker = false;
         },
 
-        changePage(newPage: number) {
-            this.page = newPage;
-            addValueToQueryUrl('page', String(newPage));
-        },
-
         changeFilters(filters: string) {
             this.filters = filters;
-            addValueToQueryUrl('filters', filters);
             this.page = 1;
-            addValueToQueryUrl('page', String(1));
         },
 
-        filtredTickers() {
-            return this.activeTickers.filter(({ name }) =>
-                name.includes(this.filters),
-            );
-        },
-
-        separatedByPage() {
-            const start = (this.page - 1) * 8;
-            const end = this.page * 8;
-
-            return this.activeTickers
-                .filter(({ name }) => name.includes(this.filters))
-                .slice(start, end);
+        changePage(page: number) {
+            this.page = page;
         },
 
         async saveAllTickers() {
             getAllTickers().then((list) => (this.tickerList = list));
         },
     },
+
+    computed: {
+        filtredTickers(): ITickerCustome[] {
+            return this.activeTickers.filter(({ name }) =>
+                name.includes(this.filters),
+            );
+        },
+
+        pageSeparatedTickers(): ITickerCustome[] {
+            const start = (this.page - 1) * 8;
+            const end = this.page * 8;
+
+            return this.filtredTickers.slice(start, end);
+        },
+
+        totalPage(): number {
+            return Math.ceil(this.filtredTickers.length / 8);
+        },
+    },
+
+    watch: {
+        activeTickers() {
+            localStorage.setItem('tickers', JSON.stringify(this.activeTickers));
+            this.page > this.totalPage && this.changePage(this.page - 1);
+        },
+
+        page() {
+            addValueToQueryUrl('page', String(this.page));
+        },
+
+        filters() {
+            addValueToQueryUrl('filters', this.filters);
+        },
+    },
+
     created() {
         const storageTickers = localStorage.getItem('tickers');
         const queryParams = getQueryParams();
@@ -203,6 +220,7 @@ export default defineComponent({
         queryParams?.page && (this.page = +queryParams.page);
         queryParams?.filters && (this.filters = queryParams.filters);
     },
+
     mounted() {
         this.saveAllTickers();
     },

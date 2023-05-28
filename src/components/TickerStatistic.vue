@@ -1,7 +1,7 @@
 <template>
     <div class="stat_container">
         <div
-            v-for="(percent, indx) in graphList"
+            v-for="(percent, indx) in normaliseGraphList"
             :key="indx"
             class="stat_column"
             :style="{ height: `${percent * 2}px` }"
@@ -15,21 +15,17 @@ import { defineComponent, PropType } from 'vue';
 export default defineComponent({
     name: 'TickerStatistic',
     props: { priceList: Array as PropType<number[]> },
-    data() {
-        return {
-            graphList: [] as number[],
-        };
-    },
-    methods: {
-        saveNormaliseGraphList() {
+    
+    computed: {
+        normaliseGraphList() {
             const maxValue = this?.priceList?.length
                 ? Math.max(...this.priceList)
                 : 0;
             const minValue = this?.priceList?.length
                 ? Math.min(...this.priceList)
                 : 0;
-                
-            this.graphList = this?.priceList?.length
+
+            return this?.priceList?.length
                 ? this.priceList
                       .map((price) => {
                           return maxValue == minValue
@@ -40,11 +36,6 @@ export default defineComponent({
                       })
                       .slice(-30)
                 : [];
-        },
-    },
-    watch: {
-        priceList() {
-            this.saveNormaliseGraphList();
         },
     },
 });

@@ -23,9 +23,11 @@ export default defineComponent({
         usd: Number,
         selectedTickerId: Number as PropType<number | null>,
     },
+
     methods: {
         selectItem() {
-            this.$emit('select-ticker', this.id);
+            this.id !== this.selectedTickerId &&
+                this.$emit('select-ticker', this.id);
         },
 
         removeItem() {

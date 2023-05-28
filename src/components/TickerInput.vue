@@ -51,11 +51,7 @@ export default defineComponent({
         isDuplicateTicker: Boolean,
         isErrorTicker: Boolean,
     },
-    data() {
-        return {
-            matchTickers: [] as string[],
-        };
-    },
+
     methods: {
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
@@ -73,26 +69,24 @@ export default defineComponent({
             const target = evt.target as HTMLButtonElement;
             this.$emit('add-ticker', target.textContent?.toLocaleUpperCase());
         },
+    },
 
-        findMatchesTicker() {
+    computed: {
+        matchTickers() {
+            const matchTickers: string[] = [];
             const tickerList = this?.tickerList ? this.tickerList : null;
             const inputValue = this?.modelValue ? this.modelValue : '';
             const searchRegex = new RegExp(inputValue, 'gi');
 
-            this.matchTickers = [];
-
             if (tickerList && inputValue) {
                 Object.keys(tickerList).some((key) => {
                     searchRegex.test(key) &&
-                        this.matchTickers.length < 4 &&
-                        this.matchTickers.push(key);
+                        matchTickers.length < 4 &&
+                        matchTickers.push(key);
                 });
             }
-        },
-    },
-    watch: {
-        modelValue() {
-            this.findMatchesTicker();
+
+            return matchTickers;
         },
     },
 });

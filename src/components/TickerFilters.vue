@@ -35,11 +35,13 @@ export default defineComponent({
     components: {
         ButtonComponent,
     },
+
     props: {
         modelValue: String,
         page: Number,
         total: Number,
     },
+
     methods: {
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
@@ -57,11 +59,12 @@ export default defineComponent({
                 this.$emit('change-page', page - 1);
             }
         },
-        
+
         changeFilters() {
             this.$emit('change-filters', this.modelValue);
         },
     },
+    
     watch: {
         modelValue() {
             this.changeFilters();
