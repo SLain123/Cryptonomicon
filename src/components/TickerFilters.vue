@@ -49,8 +49,8 @@ export default defineComponent({
         },
 
         changePage(action: boolean) {
-            const page = this?.page ? this.page : 1;
-            const total = this?.total ? this.total : 1;
+            const page = this?.page ?? 1;
+            const total = this?.total ?? 1;
 
             if (action && page < total) {
                 this.$emit('change-page', page + 1);
@@ -64,7 +64,7 @@ export default defineComponent({
             this.$emit('change-filters', this.modelValue);
         },
     },
-    
+
     watch: {
         modelValue() {
             this.changeFilters();

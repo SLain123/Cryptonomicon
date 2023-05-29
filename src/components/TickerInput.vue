@@ -74,8 +74,8 @@ export default defineComponent({
     computed: {
         matchTickers() {
             const matchTickers: string[] = [];
-            const tickerList = this?.tickerList ? this.tickerList : null;
-            const inputValue = this?.modelValue ? this.modelValue : '';
+            const tickerList = this?.tickerList ?? null;
+            const inputValue = this?.modelValue ?? '';
             const searchRegex = new RegExp(inputValue, 'gi');
 
             if (tickerList && inputValue) {
