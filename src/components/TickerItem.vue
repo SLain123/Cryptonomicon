@@ -1,6 +1,6 @@
 <template>
     <li
-        :class="selectedTickerName === tickerName ? 'ticker_item_selected' : ''"
+        :class="selectedTicker === tickerName ? 'ticker_item_selected' : ''"
         class="ticker_item"
         @click="selectItem"
     >
@@ -22,14 +22,13 @@ export default defineComponent({
     props: {
         tickerName: String,
         price: Number,
-        selectedTickerName: String as PropType<string | null>,
+        selectedTicker: String as PropType<string | null>,
     },
 
     methods: {
         selectItem() {
-            console.log(this.selectedTickerName);
-            // this.id !== this.selectedTickerId &&
-            //     this.$emit('select-ticker', this.id);
+            this.tickerName !== this.selectedTicker &&
+                this.$emit('select-ticker', this.tickerName);
         },
 
         removeItem() {

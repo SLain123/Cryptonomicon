@@ -27,16 +27,13 @@
                 :key="tickerName"
                 :tickerName="tickerName"
                 :price="price"
-                :selectedTickerId="selectedTickerId"
+                :selectedTicker="selectedTicker"
                 @select-ticker="selectTicker"
                 @remove-ticker="removeTicker"
             />
         </ul>
 
-        <TickerStatistic
-            v-if="selectedTickerId"
-            :priceList="selectedPriceList"
-        />
+        <TickerStatistic v-if="selectedTicker" :priceList="selectedPriceList" />
     </div>
 </template>
 
@@ -76,7 +73,7 @@ export default defineComponent({
             isErrorTicker: false,
             tickerList: null as null | TickerListType,
             activeTickers: [] as ITickerCustome[],
-            selectedTickerId: null as null | number,
+            selectedTicker: null as null | string,
             selectedPriceList: [] as number[],
         };
     },
@@ -117,6 +114,12 @@ export default defineComponent({
                           updatedTickerData,
                       ])
                     : (this.activeTickers[currentIndex] = updatedTickerData);
+
+                this.selectedTicker === newTickerName &&
+                    (this.selectedPriceList = [
+                        ...this.selectedPriceList,
+                        newPrice,
+                    ]);
             }
             isError && (this.isErrorTicker = true);
         },
@@ -133,10 +136,16 @@ export default defineComponent({
             unSubscribeToUpdate(ticker);
         },
 
-        selectTicker(tickerName: number | null) {
-            console.log(tickerName);
-            // this.selectedTickerId = tickerId;
-            // this.selectedPriceList = [];
+        selectTicker(ticker: string | null) {
+            const currentTicker = this.activeTickers.find(
+                ({ tickerName }) => tickerName === ticker,
+            );
+            const firstPrice = currentTicker?.price
+                ? [currentTicker.price]
+                : [];
+                
+            this.selectedTicker = ticker;
+            this.selectedPriceList = firstPrice;
         },
 
         clearWarnings() {
@@ -197,9 +206,9 @@ export default defineComponent({
         const queryParams = getQueryParams();
 
         storageTickers && (this.activeTickers = JSON.parse(storageTickers));
-        // this.activeTickers.forEach(({ tickerName }) =>
-        //     subscribeToUpdate(tickerName, this.updatePrice),
-        // );
+        this.activeTickers.forEach(({ tickerName }) =>
+            subscribeToUpdate(tickerName, this.updatePrice),
+        );
 
         queryParams?.page && (this.page = +queryParams.page);
         queryParams?.filters && (this.filters = queryParams.filters);

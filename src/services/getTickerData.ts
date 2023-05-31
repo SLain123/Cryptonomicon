@@ -36,7 +36,7 @@ export const getAllTickers = async (): Promise<TickerListType> => {
 const sendMessage = (tickerName: string, subAction = 'add') => {
     const action = subAction === 'add' ? 'SubAdd' : 'SubRemove';
     const subs = [`5~CCCAGG~${tickerName}~USD`];
-    
+
     socket.send(
         JSON.stringify({
             action,
@@ -46,7 +46,11 @@ const sendMessage = (tickerName: string, subAction = 'add') => {
 };
 
 export const subscribeToUpdate = (tickerName: string, cb: updateFucnType) => {
-    sendMessage(tickerName, 'add');
+    if (socket.readyState === WebSocket.OPEN) {
+        sendMessage(tickerName, 'add');
+    } else {
+        socket.addEventListener('open', () => sendMessage(tickerName, 'add'));
+    }
 
     socket.onmessage = (event) => {
         const message = JSON.parse(event?.data);
