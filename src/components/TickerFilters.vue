@@ -45,7 +45,7 @@ export default defineComponent({
     methods: {
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
-            this.$emit('update:modelValue', target.value);
+            this.$emit('update:modelValue', target.value.toUpperCase());
         },
 
         changePage(action: boolean) {

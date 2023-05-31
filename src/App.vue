@@ -84,7 +84,7 @@ export default defineComponent({
             const isDuplicate = Boolean(
                 this.activeTickers.find(
                     ({ tickerName }) =>
-                        tickerName.toLocaleLowerCase() === newTickerName,
+                        tickerName.toUpperCase() === newTickerName,
                 ),
             );
 
@@ -107,7 +107,6 @@ export default defineComponent({
             };
 
             if (newPrice) {
-                console.log(updatedTickerData);
                 currentIndex == -1
                     ? (this.activeTickers = [
                           ...this.activeTickers,
@@ -143,7 +142,7 @@ export default defineComponent({
             const firstPrice = currentTicker?.price
                 ? [currentTicker.price]
                 : [];
-                
+
             this.selectedTicker = ticker;
             this.selectedPriceList = firstPrice;
         },
@@ -160,6 +159,19 @@ export default defineComponent({
 
         changePage(page: number) {
             this.page = page;
+        },
+
+        loadTickersFromStorage() {
+            const storageTickers = localStorage.getItem('tickers');
+            const queryParams = getQueryParams();
+
+            storageTickers && (this.activeTickers = JSON.parse(storageTickers));
+            this.activeTickers.forEach(({ tickerName }) =>
+                subscribeToUpdate(tickerName, this.updatePrice),
+            );
+
+            queryParams?.page && (this.page = +queryParams.page);
+            queryParams?.filters && (this.filters = queryParams.filters);
         },
 
         async saveAllTickers() {
@@ -189,7 +201,9 @@ export default defineComponent({
     watch: {
         activeTickers() {
             localStorage.setItem('tickers', JSON.stringify(this.activeTickers));
-            this.page > this.totalPage && this.changePage(this.page - 1);
+            this.page > this.totalPage &&
+                this.page > 1 &&
+                this.changePage(this.page - 1);
         },
 
         page() {
@@ -202,16 +216,7 @@ export default defineComponent({
     },
 
     created() {
-        const storageTickers = localStorage.getItem('tickers');
-        const queryParams = getQueryParams();
-
-        storageTickers && (this.activeTickers = JSON.parse(storageTickers));
-        this.activeTickers.forEach(({ tickerName }) =>
-            subscribeToUpdate(tickerName, this.updatePrice),
-        );
-
-        queryParams?.page && (this.page = +queryParams.page);
-        queryParams?.filters && (this.filters = queryParams.filters);
+        this.loadTickersFromStorage();
     },
 
     mounted() {
