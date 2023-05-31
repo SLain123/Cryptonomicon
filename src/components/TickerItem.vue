@@ -1,11 +1,13 @@
 <template>
     <li
-        :class="selectedTickerId === id ? 'ticker_item_selected' : ''"
+        :class="selectedTickerName === tickerName ? 'ticker_item_selected' : ''"
         class="ticker_item"
         @click="selectItem"
     >
-        <p class="ticker_info ticker_name">{{ name }} - USD</p>
-        <p class="ticker_info ticker_cost">{{ usd && +usd?.toFixed(8) }}</p>
+        <p class="ticker_info ticker_name">{{ tickerName }} - USD</p>
+        <p class="ticker_info ticker_cost">
+            {{ price ? +price?.toFixed(8) : '-' }}
+        </p>
         <button type="button" class="ticker_remove_btn" @click="removeItem">
             <span class="ticker_remove_text">Remove</span>
         </button>
@@ -18,20 +20,20 @@ import { defineComponent, PropType } from 'vue';
 export default defineComponent({
     name: 'TickerItem',
     props: {
-        id: Number,
-        name: String,
-        usd: Number,
-        selectedTickerId: Number as PropType<number | null>,
+        tickerName: String,
+        price: Number,
+        selectedTickerName: String as PropType<string | null>,
     },
 
     methods: {
         selectItem() {
-            this.id !== this.selectedTickerId &&
-                this.$emit('select-ticker', this.id);
+            console.log(this.selectedTickerName);
+            // this.id !== this.selectedTickerId &&
+            //     this.$emit('select-ticker', this.id);
         },
 
         removeItem() {
-            this.$emit('remove-ticker', this.id);
+            this.$emit('remove-ticker', this.tickerName);
         },
     },
 });

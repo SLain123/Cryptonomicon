@@ -23,11 +23,10 @@
 
         <ul class="ticker_list" v-if="activeTickers.length">
             <TickerItem
-                v-for="{ id, name, usd } in pageSeparatedTickers"
-                :key="id"
-                :id="id"
-                :name="name"
-                :usd="usd"
+                v-for="{ tickerName, price } in pageSeparatedTickers"
+                :key="tickerName"
+                :tickerName="tickerName"
+                :price="price"
                 :selectedTickerId="selectedTickerId"
                 @select-ticker="selectTicker"
                 @remove-ticker="removeTicker"
@@ -50,7 +49,11 @@ import TickerItem from '@/components/TickerItem.vue';
 import TickerStatistic from '@/components/TickerStatistic.vue';
 import TickerFilters from '@/components/TickerFilters.vue';
 
-import { getAllTickers, getTickerPrice } from '@/services/getTickerData';
+import {
+    getAllTickers,
+    subscribeToUpdate,
+    unSubscribeToUpdate,
+} from '@/services/getTickerData';
 import { TickerListType, ITickerCustome } from '@/types/Ticker';
 import { addValueToQueryUrl, getQueryParams } from '@/utils/urlFuncs';
 
@@ -80,75 +83,60 @@ export default defineComponent({
 
     methods: {
         addTicker(ticker: string) {
-            const newTickerName = ticker.toLocaleLowerCase();
-            const id = +new Date();
-            const interval = setInterval(() => this.updatePrice(id), 10000);
+            const newTickerName = ticker.toUpperCase();
             const isDuplicate = Boolean(
                 this.activeTickers.find(
-                    ({ name }) => name.toLocaleLowerCase() === newTickerName,
+                    ({ tickerName }) =>
+                        tickerName.toLocaleLowerCase() === newTickerName,
                 ),
             );
 
             if (isDuplicate) {
                 this.tickerInputValue = newTickerName;
             } else {
-                getTickerPrice(newTickerName).then(({ USD }) => {
-                    if (USD) {
-                        this.activeTickers = [
-                            ...this.activeTickers,
-                            {
-                                id,
-                                name: newTickerName,
-                                usd: USD,
-                                interval,
-                            },
-                        ];
-                    } else {
-                        this.isErrorTicker = true;
-                    }
-                });
+                subscribeToUpdate(newTickerName, this.updatePrice);
                 this.tickerInputValue = '';
             }
             this.isDuplicateTicker = isDuplicate;
         },
 
-        updatePrice(tickerId: number) {
-            const currentTickerIndex = this.activeTickers.findIndex(
-                ({ id }) => id === tickerId,
+        updatePrice(newTickerName: string, newPrice: number, isError: boolean) {
+            const currentIndex = this.activeTickers.findIndex(
+                ({ tickerName }) => tickerName === newTickerName,
             );
-            const currentTicker = this.activeTickers[currentTickerIndex];
+            const updatedTickerData = {
+                tickerName: newTickerName,
+                price: newPrice,
+            };
 
-            currentTicker &&
-                getTickerPrice(currentTicker.name).then(({ USD }) => {
-                    currentTicker.usd = USD;
-                    this.selectedTickerId === tickerId &&
-                        (this.selectedPriceList = [
-                            ...this.selectedPriceList,
-                            USD,
-                        ]);
-                });
-        },
-
-        removeTicker(tickerId: number) {
-            const currentTickerIndex = this.activeTickers.findIndex(
-                ({ id }) => id === tickerId,
-            );
-            const currentTicker = this.activeTickers[currentTickerIndex];
-
-            clearInterval(currentTicker.interval);
-            this.activeTickers = this.activeTickers.filter(
-                ({ id }) => id !== tickerId,
-            );
-
-            if (this.selectedTickerId === tickerId) {
-                this.selectedTickerId = null;
-                this.selectedPriceList = [];
+            if (newPrice) {
+                console.log(updatedTickerData);
+                currentIndex == -1
+                    ? (this.activeTickers = [
+                          ...this.activeTickers,
+                          updatedTickerData,
+                      ])
+                    : (this.activeTickers[currentIndex] = updatedTickerData);
             }
+            isError && (this.isErrorTicker = true);
         },
 
-        selectTicker(tickerId: number | null) {
-            this.selectedTickerId = tickerId;
-            this.selectedPriceList = [];
+        removeTicker(ticker: string) {
+            const currentIndex = this.activeTickers.findIndex(
+                ({ tickerName }) => tickerName === ticker,
+            );
+
+            this.activeTickers = [
+                ...this.activeTickers.slice(0, currentIndex),
+                ...this.activeTickers.slice(currentIndex + 1),
+            ];
+            unSubscribeToUpdate(ticker);
+        },
+
+        selectTicker(tickerName: number | null) {
+            console.log(tickerName);
+            // this.selectedTickerId = tickerId;
+            // this.selectedPriceList = [];
         },
 
         clearWarnings() {
@@ -172,8 +160,8 @@ export default defineComponent({
 
     computed: {
         filtredTickers(): ITickerCustome[] {
-            return this.activeTickers.filter(({ name }) =>
-                name.includes(this.filters),
+            return this.activeTickers.filter(({ tickerName }) =>
+                tickerName.includes(this.filters),
             );
         },
 
@@ -209,13 +197,9 @@ export default defineComponent({
         const queryParams = getQueryParams();
 
         storageTickers && (this.activeTickers = JSON.parse(storageTickers));
-        this.activeTickers.forEach((ticker) => {
-            const newInterval = setInterval(
-                () => this.updatePrice(ticker.id),
-                10000,
-            );
-            ticker.interval = newInterval;
-        });
+        // this.activeTickers.forEach(({ tickerName }) =>
+        //     subscribeToUpdate(tickerName, this.updatePrice),
+        // );
 
         queryParams?.page && (this.page = +queryParams.page);
         queryParams?.filters && (this.filters = queryParams.filters);

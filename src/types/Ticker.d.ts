@@ -6,12 +6,16 @@ export interface ITickerResponse {
 }
 
 export interface ITickerCustome {
-    id: number;
-    name: string;
-    usd: number;
-    interval?: number;
+    tickerName: string;
+    price: number;
 }
 
 export type TickerListType = { [key: string]: ITickerResponse };
 
 export type TickerPriceType = { USD: number };
+
+export type updateFucnType = (
+    tickerName: string,
+    price: number,
+    isError: boolean,
+) => void;
