@@ -8,6 +8,7 @@ const headers = {
 const socket = new WebSocket(
     `wss://streamer.cryptocompare.com/v2?api_key=${process.env.VUE_APP_API_KEY}`,
 );
+const bc = new BroadcastChannel('extra_channel');
 
 export const getTickerPrice = async (tickerName: string) => {
     const response = await fetch(
@@ -58,7 +59,17 @@ export const subscribeToUpdate = (tickerName: string, cb: updateFucnType) => {
         const returnData = type === '5' || type === '500';
         const isError = type === '500';
 
-        returnData && cb(tickerName, price, isError);
+        if (type === '429') {
+            bc.onmessage = (evt) => {
+                const { tickerName, price } = JSON.parse(evt.data);
+                cb(tickerName, price, false);
+            };
+        }
+
+        if (returnData) {
+            cb(tickerName, price, isError);
+            price && bc.postMessage(JSON.stringify({ tickerName, price }));
+        }
     };
 };
 
