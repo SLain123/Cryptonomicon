@@ -133,6 +133,7 @@ export default defineComponent({
                 ...this.activeTickers.slice(currentIndex + 1),
             ];
             unSubscribeToUpdate(ticker);
+            this.selectedTicker === ticker && (this.selectedTicker = null);
         },
 
         selectTicker(ticker: string | null) {
