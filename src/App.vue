@@ -4,7 +4,7 @@
     </div>
 
     <div class="ticker_content" v-if="tickerList">
-        <TickerInput
+        <ticker-input
             v-model="tickerInputValue"
             :tickerList="tickerList"
             :isDuplicateTicker="isDuplicateTicker"
@@ -13,7 +13,7 @@
             @clear-warnings="clearWarnings"
         />
 
-        <TickerFilters
+        <ticker-filters
             v-model="filters"
             :page="page"
             :total="totalPage"
@@ -22,7 +22,7 @@
         />
 
         <ul class="ticker_list" v-if="activeTickers.length">
-            <TickerItem
+            <ticker-item
                 v-for="{ tickerName, price } in pageSeparatedTickers"
                 :key="tickerName"
                 :tickerName="tickerName"
@@ -33,7 +33,7 @@
             />
         </ul>
 
-        <TickerStatistic v-if="selectedTicker" :priceList="selectedPriceList" />
+        <ticker-statistic v-if="selectedTicker" :priceList="selectedPriceList" />
     </div>
 </template>
 

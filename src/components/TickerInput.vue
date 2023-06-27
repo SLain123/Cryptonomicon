@@ -26,7 +26,7 @@
         <p class="ticker_error" v-if="isErrorTicker">
             The ticker is uncorrect or is missing in the base
         </p>
-        <ButtonComponent
+        <button-component
             @click="addTicker"
             text="Add ticker"
             :disabled="!modelValue"

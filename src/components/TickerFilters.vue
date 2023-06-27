@@ -11,12 +11,12 @@
             />
         </div>
         <div class="control_btns">
-            <ButtonComponent
+            <button-component
                 @click="changePage(false)"
                 text="Prev"
                 :disabled="!(page && page > 1)"
             />
-            <ButtonComponent
+            <button-component
                 @click="changePage(true)"
                 text="Next"
                 :disabled="!(page && total && page < total)"
