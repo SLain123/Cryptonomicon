@@ -25,14 +25,20 @@ export default defineComponent({
         selectedTicker: String as PropType<string | null>,
     },
 
+    emits: {
+        ['select-ticker']: (val: string) => typeof val === 'string',
+        ['remove-ticker']: (val: string) => typeof val === 'string',
+    },
+
     methods: {
         selectItem() {
             this.tickerName !== this.selectedTicker &&
+                this.tickerName &&
                 this.$emit('select-ticker', this.tickerName);
         },
 
         removeItem() {
-            this.$emit('remove-ticker', this.tickerName);
+            this.tickerName && this.$emit('remove-ticker', this.tickerName);
         },
     },
 });

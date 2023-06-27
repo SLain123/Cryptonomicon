@@ -42,6 +42,12 @@ export default defineComponent({
         total: Number,
     },
 
+    emits: {
+        ['change-page']: (val: number) => typeof val === 'number',
+        ['change-filters']: (val: string) => typeof val == 'string',
+        ['update:modelValue']: (val: string) => typeof val === 'string',
+    },
+
     methods: {
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
@@ -61,7 +67,7 @@ export default defineComponent({
         },
 
         changeFilters() {
-            this.$emit('change-filters', this.modelValue);
+            this.modelValue && this.$emit('change-filters', this.modelValue);
         },
     },
 

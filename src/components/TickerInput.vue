@@ -52,6 +52,12 @@ export default defineComponent({
         isErrorTicker: Boolean,
     },
 
+    emits: {
+        ['update:modelValue']: (val: string) => typeof val === 'string',
+        ['clear-warnings']: () => true,
+        ['add-ticker']: (val: string) => typeof val === 'string',
+    },
+
     methods: {
         updateInputValue(evt: Event) {
             const target = evt.target as HTMLInputElement;
@@ -67,7 +73,11 @@ export default defineComponent({
 
         addTickerByAutocomplete(evt: Event) {
             const target = evt.target as HTMLButtonElement;
-            this.$emit('add-ticker', target.textContent?.toLocaleUpperCase());
+            target.textContent &&
+                this.$emit(
+                    'add-ticker',
+                    target.textContent.toLocaleUpperCase(),
+                );
         },
     },
 
