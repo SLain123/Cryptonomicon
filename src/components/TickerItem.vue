@@ -26,7 +26,8 @@ export default defineComponent({
     },
 
     emits: {
-        ['select-ticker']: (val: string) => typeof val === 'string',
+        ['select-ticker']: (val: string | null) =>
+            typeof val === 'string' || val === null,
         ['remove-ticker']: (val: string) => typeof val === 'string',
     },
 

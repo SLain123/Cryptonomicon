@@ -33,7 +33,11 @@
             />
         </ul>
 
-        <ticker-statistic v-if="selectedTicker" :priceList="selectedPriceList" />
+        <ticker-statistic
+            v-if="selectedTicker"
+            :priceList="selectedPriceList"
+            @select-ticker="selectTicker"
+        />
     </div>
 </template>
 
