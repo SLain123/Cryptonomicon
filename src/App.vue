@@ -39,6 +39,16 @@
             @select-ticker="selectTicker"
         />
     </div>
+
+    <button-component
+        class="modal_btn"
+        @click="toggleModal"
+        text=" Open modal"
+    />
+
+    <modal-window :isOpen="isOpenModal" @close-modal="toggleModal">
+        <template v-slot:content><form-component /></template>
+    </modal-window>
 </template>
 
 <script lang="ts">
@@ -49,6 +59,10 @@ import TickerInput from '@/components/TickerInput.vue';
 import TickerItem from '@/components/TickerItem.vue';
 import TickerStatistic from '@/components/TickerStatistic.vue';
 import TickerFilters from '@/components/TickerFilters.vue';
+
+import ButtonComponent from '@/components/ui/ButtonComponent.vue';
+import ModalWindow from '@/components/ModalWindow.vue';
+import FormComponent from '@/components/FormComponent.vue';
 
 import {
     getAllTickers,
@@ -66,6 +80,9 @@ export default defineComponent({
         TickerStatistic,
         TickerFilters,
         RiseLoader,
+        ModalWindow,
+        ButtonComponent,
+        FormComponent,
     },
 
     data() {
@@ -79,6 +96,7 @@ export default defineComponent({
             activeTickers: [] as ITickerCustome[],
             selectedTicker: null as null | string,
             selectedPriceList: [] as number[],
+            isOpenModal: false,
         };
     },
 
@@ -182,6 +200,10 @@ export default defineComponent({
         async saveAllTickers() {
             getAllTickers().then((list) => (this.tickerList = list));
         },
+
+        toggleModal() {
+            this.isOpenModal = !this.isOpenModal;
+        },
     },
 
     computed: {
@@ -263,5 +285,9 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.modal_btn {
+    margin-top: 24px;
 }
 </style>
