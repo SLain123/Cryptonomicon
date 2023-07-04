@@ -1,18 +1,22 @@
 <template>
-    <form class="form">
+    <div class="form">
         <input
             class="input"
             type="text"
             name="name"
             placeholder="Type your name"
+            :value="name"
+            @input="updateInputValue($event, 'name')"
         />
         <input
             class="input"
             type="text"
             name="email"
             placeholder="Type your email"
+            :value:="email"
+            @input="updateInputValue($event, 'email')"
         />
-    </form>
+    </div>
 </template>
 
 <script lang="ts">
@@ -20,6 +24,17 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'FormComponent',
+
+    data() {
+        return { name: '', email: '' };
+    },
+
+    methods: {
+        updateInputValue(evt: Event, key: 'name' | 'email') {
+            const target = evt.target as HTMLFormElement;
+            this[key] = target.value;
+        },
+    },
 });
 </script>
 

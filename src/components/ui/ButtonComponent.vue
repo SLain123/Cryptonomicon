@@ -1,6 +1,6 @@
 <template>
     <button
-        type="button"
+        :type="type ?? 'button'"
         class="button"
         :class="userClass"
         :disabled="disabled"
@@ -10,11 +10,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
     name: 'ButtonComponent',
     props: {
+        type: String as PropType<'button' | 'submit' | 'reset'>,
         disabled: Boolean,
         userClass: String,
         text: String,

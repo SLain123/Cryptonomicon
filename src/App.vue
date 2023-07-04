@@ -46,8 +46,15 @@
         text=" Open modal"
     />
 
-    <modal-window :isOpen="isOpenModal" @close-modal="toggleModal">
-        <template v-slot:content><form-component /></template>
+    <modal-window
+        :isOpen="isOpenModal"
+        @close-modal="toggleModal"
+        @send-form="sendForm"
+    >
+        <template v-slot:content>
+            <form-content @submit-form="sendForm" />
+        </template>
+        <template v-slot:control><simple-send-btn /></template>
     </modal-window>
 </template>
 
@@ -62,7 +69,8 @@ import TickerFilters from '@/components/TickerFilters.vue';
 
 import ButtonComponent from '@/components/ui/ButtonComponent.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-import FormComponent from '@/components/FormComponent.vue';
+import FormContent from '@/components/form-blocks/FormContent.vue';
+import SimpleSendBtn from '@/components/form-blocks/SimpleSendBtn.vue';
 
 import {
     getAllTickers,
@@ -82,7 +90,8 @@ export default defineComponent({
         RiseLoader,
         ModalWindow,
         ButtonComponent,
-        FormComponent,
+        FormContent,
+        SimpleSendBtn,
     },
 
     data() {
@@ -203,6 +212,20 @@ export default defineComponent({
 
         toggleModal() {
             this.isOpenModal = !this.isOpenModal;
+        },
+
+        sendForm(evt: Event) {
+            const formData = evt.target as HTMLFormElement;
+            const inputList = Array.from(formData)
+                .filter((item) => {
+                    const input = item as HTMLInputElement;
+                    return !!input.name;
+                })
+                .map((item) => {
+                    const input = item as HTMLInputElement;
+                    return { [input.name]: input.value };
+                });
+            console.log(JSON.stringify(inputList));
         },
     },
 

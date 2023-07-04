@@ -1,9 +1,9 @@
 <template>
     <div class="layout" v-if="isOpen" @click="closeModal">
-        <div class="modal">
+        <form class="modal" @submit="submitModal">
             <slot name="content"></slot>
-            <button type="submit" class="send_btn">OK</button>
-        </div>
+            <slot name="control"></slot>
+        </form>
     </div>
 </template>
 
@@ -19,12 +19,19 @@ export default defineComponent({
 
     emits: {
         ['close-modal']: null,
+        ['send-form']: (evt: Event) => evt.target,
     },
 
     methods: {
         closeModal(evt: MouseEvent) {
             const target = evt.target as HTMLElement;
             target.classList?.contains('layout') && this.$emit('close-modal');
+        },
+
+        submitModal(evt: Event) {
+            evt.preventDefault();
+            this.$emit('send-form', evt);
+            this.$emit('close-modal');
         },
     },
 });
